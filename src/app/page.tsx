@@ -1,23 +1,42 @@
 "use client";
 
-import { useState, useMemo, type KeyboardEvent, useEffect } from "react";
+import { useState, useMemo, type KeyboardEvent, useEffect, useCallback } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ProductCard from "@/components/product-card";
 import CartPanel from "@/components/cart-panel";
-import type { Product, CartItem, Transaction, DraftCart } from "@/types";
-import { MOCK_PRODUCTS } from "@/lib/data";
+import type { Product, CartItem, Transaction, DraftCart, NewTransaction } from "@/types";
+import { getAllProducts, addTransaction } from "@/lib/db";
 import { useToast } from "@/hooks/use-toast";
 import { TransactionDetailDialog } from "@/components/transaction-detail-dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CashierPage() {
-  const [products] = useState<Product[]>(MOCK_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [drafts, setDrafts] = useState<DraftCart[]>([]);
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   const [completedTransaction, setCompletedTransaction] =
     useState<Transaction | null>(null);
+
+  const fetchProducts = useCallback(async () => {
+    setIsLoading(true);
+    try {
+        const dbProducts = await getAllProducts();
+        setProducts(dbProducts);
+    } catch (error) {
+        console.error("Failed to fetch products:", error);
+        toast({ variant: "destructive", title: "Gagal memuat produk." });
+    } finally {
+        setIsLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   useEffect(() => {
     if (drafts.length === 0) {
@@ -141,14 +160,13 @@ export default function CashierPage() {
     setActiveDraftId(draftId);
   };
 
-  const handleCheckout = (
+  const handleCheckout = async (
     total: number,
     payment: number,
     customerName?: string,
     customerPhone?: string
   ) => {
-    const newTransaction: Transaction = {
-      id: `TRX-${Date.now()}`,
+    const newTransactionData: NewTransaction = {
       date: new Date(),
       items: activeCartItems,
       total,
@@ -159,8 +177,14 @@ export default function CashierPage() {
       customerName,
       customerPhone,
     };
-
-    setCompletedTransaction(newTransaction);
+    
+    try {
+        const savedTransaction = await addTransaction(newTransactionData);
+        setCompletedTransaction(savedTransaction);
+    } catch (error) {
+        console.error("Failed to save transaction:", error);
+        toast({ variant: "destructive", title: "Gagal menyimpan transaksi." });
+    }
   };
 
   const handleBarcodeScan = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -219,13 +243,23 @@ export default function CashierPage() {
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={addToCart}
-              />
-            ))}
+            {isLoading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="flex flex-col gap-2">
+                    <Skeleton className="w-full aspect-square rounded-lg" />
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-5 w-1/2" />
+                </div>
+              ))
+            ) : (
+                filteredProducts.map((product) => (
+                <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={addToCart}
+                />
+                ))
+            )}
           </div>
         </div>
         <div className="lg:col-span-1">

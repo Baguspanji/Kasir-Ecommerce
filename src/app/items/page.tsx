@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { PlusCircle, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/layout/header";
@@ -8,14 +8,34 @@ import { DataTable } from "@/components/data-table";
 import { getColumns } from "./columns";
 import { ItemFormDialog } from "@/components/item-form-dialog";
 import type { Product } from "@/types";
-import { MOCK_PRODUCTS } from "@/lib/data";
+import { getAllProducts, saveProduct, deleteProduct } from "@/lib/db";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ItemsPage() {
-  const [items, setItems] = useState<Product[]>(MOCK_PRODUCTS);
+  const [items, setItems] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Product | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
+
+  const fetchItems = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const products = await getAllProducts();
+      setItems(products);
+    } catch (error) {
+      console.error("Failed to fetch items:", error);
+      toast({ variant: "destructive", title: "Gagal memuat barang." });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
 
   const filteredItems = useMemo(() => {
     if (!searchTerm) return items;
@@ -34,16 +54,24 @@ export default function ItemsPage() {
     setIsFormOpen(true);
   };
 
-  const handleDelete = (itemId: number) => {
-    setItems(items.filter((item) => item.id !== itemId));
+  const handleDelete = async (itemId: number) => {
+    try {
+      await deleteProduct(itemId);
+      toast({ title: "Barang dihapus", description: "Barang telah berhasil dihapus." });
+      fetchItems();
+    } catch (error) {
+      console.error("Failed to delete item:", error);
+      toast({ variant: "destructive", title: "Gagal menghapus barang." });
+    }
   };
 
-  const handleSave = (itemData: Product) => {
-    const existing = items.find((i) => i.id === itemData.id);
-    if (existing) {
-      setItems(items.map((i) => (i.id === itemData.id ? itemData : i)));
-    } else {
-      setItems([...items, { ...itemData, id: Date.now() }]);
+  const handleSave = async (itemData: Product) => {
+    try {
+      await saveProduct(itemData);
+      fetchItems();
+    } catch (error) {
+      console.error("Failed to save item:", error);
+      toast({ variant: "destructive", title: "Gagal menyimpan barang." });
     }
   };
 
@@ -73,7 +101,7 @@ export default function ItemsPage() {
           />
         </div>
       </div>
-      <DataTable columns={columns} data={filteredItems} />
+      <DataTable columns={columns} data={filteredItems} isLoading={isLoading} />
       {isFormOpen && (
         <ItemFormDialog
           item={selectedItem}

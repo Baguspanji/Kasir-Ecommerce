@@ -24,7 +24,7 @@ export interface StockItem extends Product {
 }
 
 export interface Transaction {
-  id: string;
+  id: number;
   items: CartItem[];
   total: number;
   payment: number;
@@ -35,6 +35,8 @@ export interface Transaction {
   customerName?: string;
   customerPhone?: string;
 }
+
+export type NewTransaction = Omit<Transaction, 'id'>;
 
 export interface AppSettings {
   appName: string;
