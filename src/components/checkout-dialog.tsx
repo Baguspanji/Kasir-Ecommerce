@@ -27,6 +27,15 @@ export default function CheckoutDialog({
   const [paymentAmount, setPaymentAmount] = useState<number | "">("");
   const [change, setChange] = useState<number>(0);
 
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(value);
+  
+  const formatCurrencyNoSymbol = (value: number) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "decimal",
+      minimumFractionDigits: 0,
+    }).format(value);
+
   useEffect(() => {
     if (typeof paymentAmount === 'number' && paymentAmount >= total) {
       setChange(paymentAmount - total);
@@ -41,43 +50,40 @@ export default function CheckoutDialog({
     }
   };
 
-  const quickCashValues = [5, 10, 20, 50, 100].map(val => {
-    if (total > val) {
-      return Math.ceil(total / val) * val;
+  const quickCashValues = [10000, 20000, 50000, 100000]
+    .reduce((acc, val) => {
+        if (total < val && !acc.some(v => v > total)) {
+            const nextHigher = Math.ceil(total / val) * val;
+            if (total < nextHigher) acc.push(nextHigher);
+        }
+        acc.push(val);
+        return acc;
+    }, [] as number[])
+    .filter((v, i, a) => a.indexOf(v) === i) 
+    .sort((a,b) => a-b);
+    
+    if (!quickCashValues.includes(Math.ceil(total))) {
+      quickCashValues.unshift(Math.ceil(total));
     }
-    return val;
-  }).filter((v, i, a) => a.indexOf(v) === i); // unique values
-
-  const exactCash = Math.ceil(total);
-  if (!quickCashValues.includes(exactCash)) {
-    quickCashValues.unshift(exactCash);
-  }
-  
-  // Get next rounded dollar amount
-  if (total !== exactCash && !quickCashValues.includes(exactCash)) {
-    quickCashValues.unshift(exactCash);
-  } else if (!quickCashValues.includes(exactCash + 1) && total > exactCash) {
-    quickCashValues.unshift(exactCash + 1);
-  }
 
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Checkout</DialogTitle>
+          <DialogTitle>Pembayaran</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="text-center">
-            <p className="text-muted-foreground">Total Amount Due</p>
-            <p className="text-4xl font-bold">${total.toFixed(2)}</p>
+            <p className="text-muted-foreground">Total yang Harus Dibayar</p>
+            <p className="text-4xl font-bold">{formatCurrency(total)}</p>
           </div>
           <div className="grid grid-cols-1 gap-4">
-            <Label htmlFor="payment-amount">Payment Amount</Label>
+            <Label htmlFor="payment-amount">Jumlah Pembayaran</Label>
             <Input
               id="payment-amount"
               type="number"
-              placeholder="0.00"
+              placeholder="0"
               value={paymentAmount}
               onChange={(e) => setPaymentAmount(e.target.value === "" ? "" : parseFloat(e.target.value))}
               className="text-2xl h-14 text-center"
@@ -85,7 +91,7 @@ export default function CheckoutDialog({
              <div className="grid grid-cols-3 gap-2">
                 {quickCashValues.sort((a,b) => a-b).slice(0,6).map(val => (
                   <Button key={val} variant="outline" onClick={() => setPaymentAmount(val)}>
-                    ${val.toFixed(2)}
+                    {formatCurrencyNoSymbol(val)}
                   </Button>
                 ))}
               </div>
@@ -93,20 +99,20 @@ export default function CheckoutDialog({
           
           {typeof paymentAmount === 'number' && paymentAmount >= total && (
             <div className="text-center p-4 bg-accent/50 rounded-lg">
-              <p className="text-muted-foreground">Change Due</p>
-              <p className="text-3xl font-bold text-primary">${change.toFixed(2)}</p>
+              <p className="text-muted-foreground">Kembalian</p>
+              <p className="text-3xl font-bold text-primary">{formatCurrency(change)}</p>
             </div>
           )}
         </div>
         <DialogFooter className="mt-4">
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">Batal</Button>
           </DialogClose>
           <Button
             onClick={handleConfirm}
             disabled={typeof paymentAmount !== 'number' || paymentAmount < total}
           >
-            Confirm Payment
+            Konfirmasi Pembayaran
           </Button>
         </DialogFooter>
       </DialogContent>

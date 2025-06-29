@@ -9,6 +9,9 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onAddToCart }: ProductCardProps) {
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(value);
+
   return (
     <Card
       className="cursor-pointer hover:shadow-lg transition-shadow duration-200 flex flex-col"
@@ -26,7 +29,7 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
       </CardContent>
       <CardFooter className="p-3 flex-col items-start bg-card rounded-b-lg">
         <p className="font-semibold text-sm truncate w-full">{product.name}</p>
-        <p className="text-primary font-bold text-sm">${product.price.toFixed(2)}</p>
+        <p className="text-primary font-bold text-sm">{formatCurrency(product.price)}</p>
       </CardFooter>
     </Card>
   );

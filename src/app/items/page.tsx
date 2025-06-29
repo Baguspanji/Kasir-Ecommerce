@@ -29,7 +29,7 @@ export default function ItemsPage() {
     if(existing) {
       setItems(items.map(i => i.id === itemData.id ? itemData : i));
     } else {
-      setItems([...items, itemData]);
+      setItems([...items, { ...itemData, id: Date.now() }]);
     }
   }
 
@@ -37,10 +37,10 @@ export default function ItemsPage() {
 
   return (
     <>
-      <Header title="Item Management">
+      <Header title="Manajemen Barang">
         <Button onClick={() => { setSelectedItem(null); setIsFormOpen(true); }}>
           <PlusCircle className="mr-2 h-4 w-4" />
-          Add New Item
+          Tambah Barang Baru
         </Button>
       </Header>
       <DataTable columns={columns} data={items} />

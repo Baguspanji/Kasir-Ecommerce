@@ -26,7 +26,7 @@ export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Pro
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Name
+          Nama
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -34,16 +34,17 @@ export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Pro
   },
   {
     accessorKey: "category",
-    header: "Category",
+    header: "Kategori",
   },
   {
     accessorKey: "price",
-    header: () => <div className="text-right">Price</div>,
+    header: () => <div className="text-right">Harga</div>,
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("price"));
-      const formatted = new Intl.NumberFormat("en-US", {
+      const formatted = new Intl.NumberFormat("id-ID", {
         style: "currency",
-        currency: "USD",
+        currency: "IDR",
+        minimumFractionDigits: 0,
       }).format(amount);
       return <div className="text-right font-medium">{formatted}</div>;
     },
@@ -54,7 +55,7 @@ export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Pro
   },
   {
     accessorKey: "stock",
-    header: () => <div className="text-right">Stock</div>,
+    header: () => <div className="text-right">Stok</div>,
     cell: ({ row }) => <div className="text-right">{row.getValue("stock")}</div>,
   },
   {
@@ -66,20 +67,20 @@ export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Pro
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
+              <span className="sr-only">Buka menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>Aksi</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => onEdit(item)}>
-              Edit
+              Ubah
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-destructive"
               onClick={() => onDelete(item.id)}
             >
-              Delete
+              Hapus
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

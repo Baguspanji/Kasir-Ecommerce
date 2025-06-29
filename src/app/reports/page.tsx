@@ -11,7 +11,7 @@ import type { Transaction } from "@/types";
 import { MOCK_TRANSACTIONS } from "@/lib/data";
 
 const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+  new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(value);
 
 export default function ReportsPage() {
   const [transactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
@@ -41,7 +41,7 @@ export default function ReportsPage() {
 
   return (
     <>
-      <Header title="Reports & Analytics" />
+      <Header title="Laporan & Analitik" />
       <div className="space-y-6">
         <div>
           <DateRangePicker onDateChange={setDateRange} />
@@ -49,7 +49,7 @@ export default function ReportsPage() {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader>
-              <CardTitle>Total Revenue</CardTitle>
+              <CardTitle>Total Pendapatan</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold">{formatCurrency(summary.totalRevenue)}</p>
@@ -57,7 +57,7 @@ export default function ReportsPage() {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Cost of Goods Sold (COGS)</CardTitle>
+              <CardTitle>Harga Pokok Penjualan (HPP)</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold">{formatCurrency(summary.cogs)}</p>
@@ -65,7 +65,7 @@ export default function ReportsPage() {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Gross Profit</CardTitle>
+              <CardTitle>Laba Kotor</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold">{formatCurrency(summary.grossProfit)}</p>
@@ -73,7 +73,7 @@ export default function ReportsPage() {
           </Card>
         </div>
         <div>
-          <h2 className="text-2xl font-bold tracking-tight mb-4">Transaction History</h2>
+          <h2 className="text-2xl font-bold tracking-tight mb-4">Riwayat Transaksi</h2>
           <DataTable columns={columns} data={filteredTransactions} />
         </div>
       </div>

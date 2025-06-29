@@ -31,6 +31,9 @@ export default function CartPanel({
     0
   );
 
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(value);
+
   const handleCheckout = (payment: number) => {
     onCheckout(total, payment);
     setIsCheckoutOpen(false);
@@ -39,11 +42,11 @@ export default function CartPanel({
   return (
     <Card className="sticky top-4">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Cart</CardTitle>
+        <CardTitle>Keranjang</CardTitle>
         {cartItems.length > 0 && (
           <Button variant="ghost" size="icon" onClick={onClearCart} className="h-8 w-8">
             <Trash2 className="h-4 w-4" />
-            <span className="sr-only">Clear Cart</span>
+            <span className="sr-only">Kosongkan Keranjang</span>
           </Button>
         )}
       </CardHeader>
@@ -54,8 +57,8 @@ export default function CartPanel({
             {cartItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-48">
                 <ShoppingCart className="h-10 w-10 mb-2" />
-                <p>Your cart is empty</p>
-                <p className="text-xs">Click on products to add them.</p>
+                <p>Keranjang Anda kosong</p>
+                <p className="text-xs">Klik pada produk untuk menambahkannya.</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -64,7 +67,7 @@ export default function CartPanel({
                     <div>
                       <p className="font-medium">{item.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        ${item.price.toFixed(2)}
+                        {formatCurrency(item.price)}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -98,14 +101,14 @@ export default function CartPanel({
             <div className="p-4 space-y-4">
               <div className="flex justify-between font-semibold text-lg">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>{formatCurrency(total)}</span>
               </div>
               <Button
                 className="w-full"
                 size="lg"
                 onClick={() => setIsCheckoutOpen(true)}
               >
-                Checkout
+                Pembayaran
               </Button>
             </div>
           </>

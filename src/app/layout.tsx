@@ -4,8 +4,8 @@ import { Toaster } from "@/components/ui/toaster";
 import MainLayout from "@/components/layout/main-layout";
 
 export const metadata: Metadata = {
-  title: "E-Kasir App",
-  description: "Point of Sale application",
+  title: "Aplikasi E-Kasir",
+  description: "Aplikasi Point of Sale",
 };
 
 export default function RootLayout({
@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="id" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

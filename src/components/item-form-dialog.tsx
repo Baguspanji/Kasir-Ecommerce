@@ -25,11 +25,11 @@ import type { Product } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 
 const itemSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters."),
-  category: z.string().min(2, "Category is required."),
-  price: z.coerce.number().min(0, "Price must be a positive number."),
-  sku: z.string().min(2, "SKU is required."),
-  stock: z.coerce.number().int().min(0, "Stock must be a non-negative integer."),
+  name: z.string().min(2, "Nama minimal harus 2 karakter."),
+  category: z.string().min(2, "Kategori wajib diisi."),
+  price: z.coerce.number().min(0, "Harga harus angka positif."),
+  sku: z.string().min(2, "SKU wajib diisi."),
+  stock: z.coerce.number().int().min(0, "Stok harus bilangan bulat non-negatif."),
 });
 
 interface ItemFormDialogProps {
@@ -54,8 +54,8 @@ export function ItemFormDialog({ item, onClose, onSave }: ItemFormDialogProps) {
   const onSubmit = (values: z.infer<typeof itemSchema>) => {
     onSave({ ...values, id: item?.id || Date.now() });
     toast({
-      title: `Item ${item ? "updated" : "created"}`,
-      description: `${values.name} has been saved successfully.`,
+      title: `Barang ${item ? "diperbarui" : "dibuat"}`,
+      description: `${values.name} telah berhasil disimpan.`,
     });
     onClose();
   };
@@ -64,7 +64,7 @@ export function ItemFormDialog({ item, onClose, onSave }: ItemFormDialogProps) {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{item ? "Edit Item" : "Add New Item"}</DialogTitle>
+          <DialogTitle>{item ? "Ubah Barang" : "Tambah Barang Baru"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -73,7 +73,7 @@ export function ItemFormDialog({ item, onClose, onSave }: ItemFormDialogProps) {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nama</FormLabel>
                   <FormControl>
                     <Input placeholder="Espresso" {...field} />
                   </FormControl>
@@ -87,9 +87,9 @@ export function ItemFormDialog({ item, onClose, onSave }: ItemFormDialogProps) {
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>Kategori</FormLabel>
                     <FormControl>
-                      <Input placeholder="Coffee" {...field} />
+                      <Input placeholder="Kopi" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -100,9 +100,9 @@ export function ItemFormDialog({ item, onClose, onSave }: ItemFormDialogProps) {
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price</FormLabel>
+                    <FormLabel>Harga</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" {...field} />
+                      <Input type="number" step="100" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -128,7 +128,7 @@ export function ItemFormDialog({ item, onClose, onSave }: ItemFormDialogProps) {
                     name="stock"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Stock</FormLabel>
+                        <FormLabel>Stok</FormLabel>
                         <FormControl>
                         <Input type="number" {...field} />
                         </FormControl>
@@ -141,10 +141,10 @@ export function ItemFormDialog({ item, onClose, onSave }: ItemFormDialogProps) {
             <DialogFooter className="pt-4">
               <DialogClose asChild>
                 <Button type="button" variant="outline">
-                  Cancel
+                  Batal
                 </Button>
               </DialogClose>
-              <Button type="submit">Save Item</Button>
+              <Button type="submit">Simpan Barang</Button>
             </DialogFooter>
           </form>
         </Form>

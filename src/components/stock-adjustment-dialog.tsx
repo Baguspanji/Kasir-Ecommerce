@@ -27,7 +27,7 @@ import type { StockItem } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 
 const stockAdjustmentSchema = z.object({
-  newStock: z.coerce.number().int().min(0, "Stock must be a non-negative integer."),
+  newStock: z.coerce.number().int().min(0, "Stok harus bilangan bulat non-negatif."),
   reason: z.string().optional(),
 });
 
@@ -50,8 +50,8 @@ export function StockAdjustmentDialog({ item, onClose, onAdjust }: StockAdjustme
   const onSubmit = (values: z.infer<typeof stockAdjustmentSchema>) => {
     onAdjust(item.id, values.newStock);
     toast({
-      title: "Stock Adjusted",
-      description: `Stock for ${item.name} has been updated to ${values.newStock}.`,
+      title: "Stok Disesuaikan",
+      description: `Stok untuk ${item.name} telah diperbarui menjadi ${values.newStock}.`,
     });
     onClose();
   };
@@ -60,9 +60,9 @@ export function StockAdjustmentDialog({ item, onClose, onAdjust }: StockAdjustme
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Adjust Stock for {item.name}</DialogTitle>
+          <DialogTitle>Sesuaikan Stok untuk {item.name}</DialogTitle>
           <DialogDescription>
-            Current stock: {item.stock}. Update the quantity below.
+            Stok saat ini: {item.stock}. Perbarui kuantitas di bawah.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -72,7 +72,7 @@ export function StockAdjustmentDialog({ item, onClose, onAdjust }: StockAdjustme
               name="newStock"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>New Stock Quantity</FormLabel>
+                  <FormLabel>Kuantitas Stok Baru</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
@@ -85,9 +85,9 @@ export function StockAdjustmentDialog({ item, onClose, onAdjust }: StockAdjustme
               name="reason"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Reason (Optional)</FormLabel>
+                  <FormLabel>Alasan (Opsional)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="e.g., Stocktaking correction, Damaged goods" {...field} />
+                    <Textarea placeholder="cth., Koreksi stok, Barang rusak" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -96,10 +96,10 @@ export function StockAdjustmentDialog({ item, onClose, onAdjust }: StockAdjustme
             <DialogFooter className="pt-4">
               <DialogClose asChild>
                 <Button type="button" variant="outline">
-                  Cancel
+                  Batal
                 </Button>
               </DialogClose>
-              <Button type="submit">Adjust Stock</Button>
+              <Button type="submit">Sesuaikan Stok</Button>
             </DialogFooter>
           </form>
         </Form>

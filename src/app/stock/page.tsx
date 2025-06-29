@@ -30,7 +30,7 @@ export default function StockPage() {
 
   return (
     <>
-      <Header title="Stock Levels" />
+      <Header title="Level Stok" />
       <DataTable columns={columns} data={stockItems} />
       {isFormOpen && selectedItem && (
         <StockAdjustmentDialog

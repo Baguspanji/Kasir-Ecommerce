@@ -12,11 +12,11 @@ interface GetColumnsProps {
 export const getColumns = ({ onAdjust }: GetColumnsProps): ColumnDef<StockItem>[] => [
   {
     accessorKey: "name",
-    header: "Name",
+    header: "Nama",
   },
   {
     accessorKey: "category",
-    header: "Category",
+    header: "Kategori",
   },
   {
     accessorKey: "sku",
@@ -24,7 +24,7 @@ export const getColumns = ({ onAdjust }: GetColumnsProps): ColumnDef<StockItem>[
   },
   {
     accessorKey: "stock",
-    header: () => <div className="text-right">Current Stock</div>,
+    header: () => <div className="text-right">Stok Saat Ini</div>,
     cell: ({ row }) => {
       const stock: number = row.getValue("stock");
       const threshold = row.original.threshold;
@@ -42,7 +42,7 @@ export const getColumns = ({ onAdjust }: GetColumnsProps): ColumnDef<StockItem>[
   },
   {
     accessorKey: "threshold",
-    header: () => <div className="text-right">Threshold</div>,
+    header: () => <div className="text-right">Ambang Batas</div>,
     cell: ({ row }) => (
       <div className="text-right">{row.getValue("threshold")}</div>
     ),
@@ -54,7 +54,7 @@ export const getColumns = ({ onAdjust }: GetColumnsProps): ColumnDef<StockItem>[
       return (
         <div className="text-right">
           <Button variant="outline" size="sm" onClick={() => onAdjust(item)}>
-            Adjust Stock
+            Sesuaikan Stok
           </Button>
         </div>
       );

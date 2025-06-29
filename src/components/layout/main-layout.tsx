@@ -13,10 +13,10 @@ import { cn } from "@/lib/utils";
 import SyncStatusIndicator from "@/components/sync-status-indicator";
 
 const navItems = [
-  { href: "/", label: "Cashier", icon: ShoppingCart },
-  { href: "/items", label: "Items", icon: Package },
-  { href: "/stock", label: "Stock", icon: Boxes },
-  { href: "/reports", label: "Reports", icon: BarChart3 },
+  { href: "/", label: "Kasir", icon: ShoppingCart },
+  { href: "/items", label: "Barang", icon: Package },
+  { href: "/stock", label: "Stok", icon: Boxes },
+  { href: "/reports", label: "Laporan", icon: BarChart3 },
 ];
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {

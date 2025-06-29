@@ -57,12 +57,16 @@ export default function CashierPage() {
   const clearCart = () => {
     setCart([]);
   };
+  
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(value);
+
 
   const handleCheckout = (total: number, payment: number) => {
     console.log("Checkout complete", { total, payment });
     toast({
-      title: "Transaction Successful",
-      description: `Total: ${total}, Paid: ${payment}, Change: ${payment - total}`,
+      title: "Transaksi Berhasil",
+      description: `Total: ${formatCurrency(total)}, Dibayar: ${formatCurrency(payment)}, Kembalian: ${formatCurrency(payment - total)}`,
     });
     clearCart();
   };
@@ -74,7 +78,7 @@ export default function CashierPage() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Search products by name or SKU..."
+              placeholder="Cari produk berdasarkan nama atau SKU..."
               className="pl-10 text-base"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

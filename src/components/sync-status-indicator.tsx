@@ -4,11 +4,11 @@ import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Wifi, WifiOff, Loader } from "lucide-react";
 
-type SyncStatus = "Online" | "Syncing" | "Offline";
+type SyncStatus = "Online" | "Sinkronisasi" | "Offline";
 
-const statusConfig = {
+const statusConfig: { [key in SyncStatus]: { icon: React.ElementType, color: string, text: string } } = {
   Online: { icon: Wifi, color: "bg-green-500 hover:bg-green-500", text: "Online" },
-  Syncing: { icon: Loader, color: "bg-yellow-500 hover:bg-yellow-500", text: "Syncing" },
+  Sinkronisasi: { icon: Loader, color: "bg-yellow-500 hover:bg-yellow-500", text: "Sinkronisasi" },
   Offline: { icon: WifiOff, color: "bg-red-500 hover:bg-red-500", text: "Offline" },
 };
 
@@ -16,14 +16,15 @@ export default function SyncStatusIndicator() {
   const [status, setStatus] = useState<SyncStatus>("Online");
 
   useEffect(() => {
-    const statuses: SyncStatus[] = ["Online", "Syncing", "Offline"];
+    const statuses: SyncStatus[] = ["Online", "Sinkronisasi", "Offline"];
     let currentIndex = 0;
 
     const interval = setInterval(() => {
       currentIndex = (currentIndex + 1) % statuses.length;
-       if (statuses[currentIndex] === 'Syncing') {
+       if (statuses[currentIndex] === 'Sinkronisasi') {
           setTimeout(() => {
              currentIndex = (currentIndex + 1) % statuses.length;
+             if (currentIndex >= statuses.length) currentIndex = 0; // loop back
              setStatus(statuses[currentIndex]);
           }, 2000);
       }
@@ -37,7 +38,7 @@ export default function SyncStatusIndicator() {
 
   return (
     <Badge variant="outline" className={`border-0 text-white gap-2 ${color}`}>
-      <Icon className={`h-4 w-4 ${status === "Syncing" ? "animate-spin" : ""}`} />
+      <Icon className={`h-4 w-4 ${status === "Sinkronisasi" ? "animate-spin" : ""}`} />
       <span>{text}</span>
     </Badge>
   );
