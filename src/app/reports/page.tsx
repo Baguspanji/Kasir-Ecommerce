@@ -11,6 +11,8 @@ import type { Transaction, Product } from "@/types";
 import { MOCK_TRANSACTIONS, MOCK_PRODUCTS } from "@/lib/data";
 import { TransactionDetailDialog } from "@/components/transaction-detail-dialog";
 import { TransactionEditDialog } from "@/components/transaction-edit-dialog";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(value);
@@ -21,6 +23,7 @@ export default function ReportsPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
 
   const filteredTransactions = useMemo(() => {
@@ -31,8 +34,18 @@ export default function ReportsPage() {
           t.date >= (dateRange.from as Date) && t.date <= (dateRange.to as Date)
       );
     }
+    
+    if (searchTerm) {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      filtered = filtered.filter(t => 
+        t.id.toLowerCase().includes(lowerCaseSearchTerm) ||
+        (t.customerName && t.customerName.toLowerCase().includes(lowerCaseSearchTerm)) ||
+        (t.customerPhone && t.customerPhone.toLowerCase().includes(lowerCaseSearchTerm))
+      );
+    }
+
     return filtered.sort((a,b) => b.date.getTime() - a.date.getTime());
-  }, [transactions, dateRange]);
+  }, [transactions, dateRange, searchTerm]);
 
   const summary = useMemo(() => {
     return filteredTransactions.reduce(
@@ -75,8 +88,17 @@ export default function ReportsPage() {
     <>
       <Header title="Laporan & Analitik" />
       <div className="space-y-6">
-        <div>
+        <div className="flex justify-between items-center gap-4">
           <DateRangePicker onDateChange={setDateRange} />
+          <div className="relative w-full max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              placeholder="Cari ID, nama, atau no. telp pelanggan..."
+              className="pl-10 text-base bg-card"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
