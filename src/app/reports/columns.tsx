@@ -23,9 +23,10 @@ const formatCurrency = (value: number) =>
 
 interface GetColumnsProps {
   onShowDetails: (transaction: Transaction) => void;
+  onEdit: (transaction: Transaction) => void;
 }
 
-export const getColumns = ({ onShowDetails }: GetColumnsProps): ColumnDef<Transaction>[] => [
+export const getColumns = ({ onShowDetails, onEdit }: GetColumnsProps): ColumnDef<Transaction>[] => [
   {
     accessorKey: "id",
     header: "ID Transaksi",
@@ -99,6 +100,9 @@ export const getColumns = ({ onShowDetails }: GetColumnsProps): ColumnDef<Transa
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => onEdit(transaction)}>
+                Ubah Transaksi
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onShowDetails(transaction)}>
                 Lihat Detail & Struk
               </DropdownMenuItem>

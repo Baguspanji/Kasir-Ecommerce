@@ -7,26 +7,31 @@ import { DateRangePicker } from "@/components/date-range-picker";
 import Header from "@/components/layout/header";
 import { DataTable } from "@/components/data-table";
 import { getColumns } from "./columns";
-import type { Transaction } from "@/types";
-import { MOCK_TRANSACTIONS } from "@/lib/data";
+import type { Transaction, Product } from "@/types";
+import { MOCK_TRANSACTIONS, MOCK_PRODUCTS } from "@/lib/data";
 import { TransactionDetailDialog } from "@/components/transaction-detail-dialog";
+import { TransactionEditDialog } from "@/components/transaction-edit-dialog";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(value);
 
 export default function ReportsPage() {
-  const [transactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
+  const [transactions, setTransactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
+  const [products] = useState<Product[]>(MOCK_PRODUCTS);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+
 
   const filteredTransactions = useMemo(() => {
-    if (!dateRange?.from || !dateRange?.to) {
-      return transactions;
+    let filtered = transactions;
+    if (dateRange?.from && dateRange?.to) {
+       filtered = transactions.filter(
+        (t) =>
+          t.date >= (dateRange.from as Date) && t.date <= (dateRange.to as Date)
+      );
     }
-    return transactions.filter(
-      (t) =>
-        t.date >= (dateRange.from as Date) && t.date <= (dateRange.to as Date)
-    );
+    return filtered.sort((a,b) => b.date.getTime() - a.date.getTime());
   }, [transactions, dateRange]);
 
   const summary = useMemo(() => {
@@ -49,7 +54,22 @@ export default function ReportsPage() {
     setSelectedTransaction(null);
   };
 
-  const columns = getColumns({ onShowDetails: handleShowDetails });
+  const handleEdit = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+  };
+
+  const handleCloseEdit = () => {
+    setEditingTransaction(null);
+  };
+
+  const handleSaveTransaction = (updatedTransaction: Transaction) => {
+    setTransactions(prev => 
+        prev.map(t => t.id === updatedTransaction.id ? updatedTransaction : t)
+    );
+    handleCloseEdit();
+  };
+
+  const columns = getColumns({ onShowDetails: handleShowDetails, onEdit: handleEdit });
 
   return (
     <>
@@ -89,10 +109,20 @@ export default function ReportsPage() {
           <DataTable columns={columns} data={filteredTransactions} />
         </div>
       </div>
-      <TransactionDetailDialog 
-        transaction={selectedTransaction}
-        onClose={handleCloseDetails}
-      />
+      {selectedTransaction && (
+        <TransactionDetailDialog 
+            transaction={selectedTransaction}
+            onClose={handleCloseDetails}
+        />
+      )}
+      {editingTransaction && (
+        <TransactionEditDialog
+            transaction={editingTransaction}
+            products={products}
+            onClose={handleCloseEdit}
+            onSave={handleSaveTransaction}
+        />
+      )}
     </>
   );
 }
