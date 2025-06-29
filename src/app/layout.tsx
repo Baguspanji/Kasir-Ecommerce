@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import MainLayout from "@/components/layout/main-layout";
 
 export const metadata: Metadata = {
-  title: "Aplikasi E-Kasir",
+  title: "Aplikasi Kasir",
   description: "Aplikasi Point of Sale",
 };
 

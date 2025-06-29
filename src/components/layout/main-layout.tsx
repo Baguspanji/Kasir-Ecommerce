@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import {
   ShoppingCart,
@@ -8,19 +9,33 @@ import {
   Boxes,
   BarChart3,
   Building,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SyncStatusIndicator from "@/components/sync-status-indicator";
+import { useSettings } from "@/hooks/use-settings";
 
 const navItems = [
   { href: "/", label: "Kasir", icon: ShoppingCart },
   { href: "/items", label: "Barang", icon: Package },
   { href: "/stock", label: "Stok", icon: Boxes },
   { href: "/reports", label: "Laporan", icon: BarChart3 },
+  { href: "/settings", label: "Pengaturan", icon: Settings },
 ];
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { settings, isLoading } = useSettings();
+
+  useEffect(() => {
+    if (settings) {
+      const currentPage = navItems.find((item) => item.href === pathname);
+      const pageTitle = currentPage
+        ? `${currentPage.label} - ${settings.appName}`
+        : settings.appName;
+      document.title = pageTitle;
+    }
+  }, [pathname, settings]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -29,7 +44,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           <div className="flex-1 flex justify-start">
             <Link href="/" className="flex items-center gap-2">
               <Building className="w-6 h-6 text-primary" />
-              <span className="font-bold">E-Kasir</span>
+              <span className="font-bold">
+                {isLoading ? "Memuat..." : settings?.appName}
+              </span>
             </Link>
           </div>
 

@@ -29,3 +29,10 @@ export interface Transaction {
   customerName?: string;
   customerPhone?: string;
 }
+
+export interface AppSettings {
+  appName: string;
+  address: string;
+  phone: string;
+  receiptFooter: string;
+}

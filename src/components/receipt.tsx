@@ -3,6 +3,8 @@
 import type { Transaction } from "@/types";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import { useSettings } from "@/hooks/use-settings";
+import { Skeleton } from "./ui/skeleton";
 
 interface ReceiptProps {
   transaction: Transaction;
@@ -18,12 +20,37 @@ const formatCurrency = (value: number) =>
 const formatDate = (date: Date) => format(date, "dd MMM yyyy, HH:mm", { locale: id });
 
 export default function Receipt({ transaction }: ReceiptProps) {
+  const { settings, isLoading } = useSettings();
+
+  if (isLoading || !settings) {
+    return (
+      <div className="bg-white text-black p-4 font-mono text-xs w-[320px] space-y-4">
+        <div className="text-center space-y-1">
+          <Skeleton className="h-5 w-24 mx-auto bg-gray-300" />
+          <Skeleton className="h-3 w-40 mx-auto bg-gray-300" />
+          <Skeleton className="h-3 w-32 mx-auto bg-gray-300" />
+        </div>
+        <div className="border-t border-b border-dashed border-black py-1 mb-2 text-[10px] space-y-1">
+          <Skeleton className="h-3 w-full bg-gray-300" />
+          <Skeleton className="h-3 w-full bg-gray-300" />
+        </div>
+        <div className="space-y-2">
+            <Skeleton className="h-3 w-full bg-gray-300" />
+            <Skeleton className="h-3 w-full bg-gray-300" />
+        </div>
+        <div className="text-center mt-6">
+          <Skeleton className="h-4 w-48 mx-auto bg-gray-300" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white text-black p-4 font-mono text-xs w-[320px]">
       <div className="text-center mb-4">
-        <h2 className="text-lg font-bold">E-Kasir</h2>
-        <p className="text-[10px]">Jl. Jenderal Sudirman No. 1, Jakarta</p>
-        <p className="text-[10px]">Telp: 021-12345678</p>
+        <h2 className="text-lg font-bold">{settings.appName}</h2>
+        <p className="text-[10px]">{settings.address}</p>
+        <p className="text-[10px]">Telp: {settings.phone}</p>
       </div>
       <div className="border-t border-b border-dashed border-black py-1 mb-2 text-[10px]">
         <div className="flex justify-between">
@@ -71,7 +98,7 @@ export default function Receipt({ transaction }: ReceiptProps) {
       </div>
 
       <div className="text-center mt-6">
-        <p>Terima kasih atas kunjungan Anda!</p>
+        <p>{settings.receiptFooter}</p>
       </div>
     </div>
   );
