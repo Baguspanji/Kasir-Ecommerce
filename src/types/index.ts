@@ -26,4 +26,6 @@ export interface Transaction {
   date: Date;
   cogs: number;
   profit: number;
+  customerName?: string;
+  customerPhone?: string;
 }

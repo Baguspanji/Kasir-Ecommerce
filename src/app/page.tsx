@@ -57,16 +57,33 @@ export default function CashierPage() {
   const clearCart = () => {
     setCart([]);
   };
-  
+
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(value);
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(value);
 
-
-  const handleCheckout = (total: number, payment: number) => {
-    console.log("Checkout complete", { total, payment });
+  const handleCheckout = (
+    total: number,
+    payment: number,
+    customerName?: string,
+    customerPhone?: string
+  ) => {
+    console.log("Checkout complete", {
+      total,
+      payment,
+      customerName,
+      customerPhone,
+    });
     toast({
       title: "Transaksi Berhasil",
-      description: `Total: ${formatCurrency(total)}, Dibayar: ${formatCurrency(payment)}, Kembalian: ${formatCurrency(payment - total)}`,
+      description: `Trx untuk ${
+        customerName || "pelanggan"
+      }. Total: ${formatCurrency(total)}, Dibayar: ${formatCurrency(
+        payment
+      )}, Kembalian: ${formatCurrency(payment - total)}`,
     });
     clearCart();
   };
@@ -79,7 +96,7 @@ export default function CashierPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               placeholder="Cari produk berdasarkan nama atau SKU..."
-              className="pl-10 text-base"
+              className="pl-10 text-base bg-card"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -87,7 +104,11 @@ export default function CashierPage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} onAddToCart={addToCart} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAddToCart={addToCart}
+            />
           ))}
         </div>
       </div>

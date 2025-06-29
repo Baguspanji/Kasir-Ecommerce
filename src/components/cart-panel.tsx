@@ -13,7 +13,12 @@ interface CartPanelProps {
   cartItems: CartItem[];
   onUpdateQuantity: (productId: number, quantity: number) => void;
   onRemoveFromCart: (productId: number) => void;
-  onCheckout: (total: number, payment: number) => void;
+  onCheckout: (
+    total: number,
+    payment: number,
+    customerName?: string,
+    customerPhone?: string
+  ) => void;
   onClearCart: () => void;
 }
 
@@ -32,10 +37,18 @@ export default function CartPanel({
   );
 
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(value);
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(value);
 
-  const handleCheckout = (payment: number) => {
-    onCheckout(total, payment);
+  const handleCheckout = (
+    payment: number,
+    customerName?: string,
+    customerPhone?: string
+  ) => {
+    onCheckout(total, payment, customerName, customerPhone);
     setIsCheckoutOpen(false);
   };
 
@@ -44,7 +57,12 @@ export default function CartPanel({
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Keranjang</CardTitle>
         {cartItems.length > 0 && (
-          <Button variant="ghost" size="icon" onClick={onClearCart} className="h-8 w-8">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClearCart}
+            className="h-8 w-8"
+          >
             <Trash2 className="h-4 w-4" />
             <span className="sr-only">Kosongkan Keranjang</span>
           </Button>
@@ -63,7 +81,10 @@ export default function CartPanel({
             ) : (
               <div className="space-y-4">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between">
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between"
+                  >
                     <div>
                       <p className="font-medium">{item.name}</p>
                       <p className="text-sm text-muted-foreground">
@@ -75,7 +96,9 @@ export default function CartPanel({
                         variant="outline"
                         size="icon"
                         className="h-7 w-7"
-                        onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                        onClick={() =>
+                          onUpdateQuantity(item.id, item.quantity - 1)
+                        }
                       >
                         <Minus className="h-4 w-4" />
                       </Button>
@@ -84,7 +107,9 @@ export default function CartPanel({
                         variant="outline"
                         size="icon"
                         className="h-7 w-7"
-                        onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                        onClick={() =>
+                          onUpdateQuantity(item.id, item.quantity + 1)
+                        }
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
