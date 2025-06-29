@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, type KeyboardEvent } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ProductCard from "@/components/product-card";
@@ -91,6 +91,31 @@ export default function CashierPage() {
     clearCart();
   };
 
+  const handleBarcodeScan = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const code = searchTerm.trim();
+      if (!code) return;
+
+      const product = products.find(p => p.barcodes.some(b => b.toLowerCase() === code.toLowerCase()));
+      
+      if (product) {
+        addToCart(product);
+        setSearchTerm("");
+        toast({
+          title: "Barang Ditambahkan",
+          description: `${product.name} telah ditambahkan ke keranjang.`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Barang Tidak Ditemukan",
+          description: `Tidak ada barang dengan barcode "${code}".`,
+        });
+      }
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start h-full">
       <div className="lg:col-span-2">
@@ -98,10 +123,11 @@ export default function CashierPage() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Cari produk berdasarkan nama atau barcode..."
+              placeholder="Cari produk atau pindai barcode..."
               className="pl-10 text-base bg-card"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleBarcodeScan}
             />
           </div>
         </div>
