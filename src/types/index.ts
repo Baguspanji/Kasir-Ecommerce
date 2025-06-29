@@ -13,6 +13,12 @@ export interface CartItem extends Product {
   quantity: number;
 }
 
+export interface DraftCart {
+  id: string;
+  name: string;
+  items: CartItem[];
+}
+
 export interface StockItem extends Product {
   threshold: number;
 }

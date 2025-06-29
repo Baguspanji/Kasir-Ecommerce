@@ -1,15 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingCart, Trash2, Minus, Plus } from "lucide-react";
+import { ShoppingCart, Trash2, Minus, Plus, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import type { CartItem } from "@/types";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import type { CartItem, DraftCart } from "@/types";
 import CheckoutDialog from "./checkout-dialog";
+import { cn } from "@/lib/utils";
 
 interface CartPanelProps {
+  drafts: DraftCart[];
+  activeDraftId: string | null;
   cartItems: CartItem[];
   onUpdateQuantity: (productId: number, quantity: number) => void;
   onRemoveFromCart: (productId: number) => void;
@@ -20,14 +23,22 @@ interface CartPanelProps {
     customerPhone?: string
   ) => void;
   onClearCart: () => void;
+  onNewDraft: () => void;
+  onDeleteDraft: (draftId: string) => void;
+  onSwitchDraft: (draftId: string) => void;
 }
 
 export default function CartPanel({
+  drafts,
+  activeDraftId,
   cartItems,
   onUpdateQuantity,
   onRemoveFromCart,
   onCheckout,
   onClearCart,
+  onNewDraft,
+  onDeleteDraft,
+  onSwitchDraft,
 }: CartPanelProps) {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
@@ -54,7 +65,7 @@ export default function CartPanel({
 
   return (
     <Card className="sticky top-4">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle>Keranjang</CardTitle>
         {cartItems.length > 0 && (
           <Button
@@ -68,9 +79,52 @@ export default function CartPanel({
           </Button>
         )}
       </CardHeader>
+      <div className="px-4 pb-4">
+        <ScrollArea className="w-full whitespace-nowrap">
+            <div className="flex items-center gap-2 pb-2">
+            {drafts.map((draft) => (
+                <div
+                key={draft.id}
+                className={cn(
+                    "flex items-center rounded-md border h-9 px-3 cursor-pointer transition-colors",
+                    activeDraftId === draft.id
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card hover:bg-accent"
+                )}
+                onClick={() => onSwitchDraft(draft.id)}
+                >
+                <span className="text-sm font-medium">{draft.name}</span>
+                {drafts.length > 1 && (
+                    <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                        "h-6 w-6 ml-1.5 -mr-1.5",
+                        activeDraftId === draft.id
+                        ? "hover:bg-primary/80"
+                        : "hover:bg-destructive/20 text-destructive"
+                    )}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteDraft(draft.id);
+                    }}
+                    >
+                    <X className="h-3 w-3" />
+                    </Button>
+                )}
+                </div>
+            ))}
+            <Button variant="outline" size="icon" className="h-9 w-9" onClick={onNewDraft}>
+                <Plus className="h-4 w-4" />
+                <span className="sr-only">Tambah Sesi Baru</span>
+            </Button>
+            </div>
+            <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      </div>
       <Separator />
       <CardContent className="p-0">
-        <ScrollArea className="h-[calc(100vh-320px)]">
+        <ScrollArea className="h-[calc(100vh-380px)]">
           <div className="p-4">
             {cartItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-48">
