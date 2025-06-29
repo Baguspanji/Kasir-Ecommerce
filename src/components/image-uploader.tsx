@@ -122,6 +122,7 @@ export default function ImageUploader({ value, onChange }: ImageUploaderProps) {
             src={imgSrc}
             onLoad={onImageLoad}
             className="w-full"
+            crossOrigin="anonymous"
           />
         </ReactCrop>
         <Button
