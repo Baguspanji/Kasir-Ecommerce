@@ -10,6 +10,8 @@ import { getAllProducts, addTransaction } from "@/lib/db";
 import { useToast } from "@/hooks/use-toast";
 import { TransactionDetailDialog } from "@/components/transaction-detail-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export default function CashierPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -17,6 +19,7 @@ export default function CashierPage() {
   const [drafts, setDrafts] = useState<DraftCart[]>([]);
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("Semua");
   const { toast } = useToast();
   const [completedTransaction, setCompletedTransaction] =
     useState<Transaction | null>(null);
@@ -54,17 +57,30 @@ export default function CashierPage() {
     return activeDraft ? activeDraft.items : [];
   }, [drafts, activeDraftId]);
 
+  const categories = useMemo(() => {
+    const allCategories = products.map((p) => p.category);
+    return ["Semua", ...[...new Set(allCategories)].sort()];
+  }, [products]);
+
   const filteredProducts = useMemo(() => {
-    if (!searchTerm) return products;
-    const lowerCaseSearchTerm = searchTerm.toLowerCase();
-    return products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(lowerCaseSearchTerm) ||
-        p.barcodes.some((barcode) =>
-          barcode.toLowerCase().includes(lowerCaseSearchTerm)
-        )
-    );
-  }, [products, searchTerm]);
+    return products
+      .filter((p) => {
+        if (selectedCategory && selectedCategory !== "Semua") {
+          return p.category === selectedCategory;
+        }
+        return true;
+      })
+      .filter((p) => {
+        if (!searchTerm) return true;
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        return (
+          p.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+          p.barcodes.some((barcode) =>
+            barcode.toLowerCase().includes(lowerCaseSearchTerm)
+          )
+        );
+      });
+  }, [products, searchTerm, selectedCategory]);
   
   const updateActiveDraft = (updater: (draft: DraftCart) => DraftCart) => {
     if (!activeDraftId) return;
@@ -230,7 +246,7 @@ export default function CashierPage() {
     <>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start h-full">
         <div className="lg:col-span-2">
-          <div className="mb-6">
+          <div className="mb-6 space-y-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
@@ -240,6 +256,25 @@ export default function CashierPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={handleBarcodeScan}
               />
+            </div>
+            <div>
+              <ScrollArea className="w-full whitespace-nowrap">
+                <div className="flex gap-2 pb-2">
+                  {categories.map((category) => (
+                    <Button
+                      key={category}
+                      variant={
+                        selectedCategory === category ? "default" : "outline"
+                      }
+                      onClick={() => setSelectedCategory(category)}
+                      className="capitalize"
+                    >
+                      {category}
+                    </Button>
+                  ))}
+                </div>
+                <ScrollBar orientation="horizontal" />
+              </ScrollArea>
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -259,6 +294,12 @@ export default function CashierPage() {
                     onAddToCart={addToCart}
                 />
                 ))
+            )}
+            {!isLoading && filteredProducts.length === 0 && (
+                <div className="col-span-full text-center text-muted-foreground py-10">
+                    <p className="text-lg">Tidak ada produk yang ditemukan.</p>
+                    <p className="text-sm">Coba ubah filter atau kata kunci pencarian Anda.</p>
+                </div>
             )}
           </div>
         </div>
