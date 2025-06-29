@@ -24,7 +24,7 @@ export default function ItemsPage() {
     setIsLoading(true);
     try {
       const products = await getAllProducts();
-      setItems(products);
+      setItems(products.sort((a, b) => b.id - a.id));
     } catch (error) {
       console.error("Failed to fetch items:", error);
       toast({ variant: "destructive", title: "Gagal memuat barang." });
@@ -36,6 +36,12 @@ export default function ItemsPage() {
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
+
+  const categories = useMemo(() => {
+    if (!items) return [];
+    const allCategories = items.map((item) => item.category);
+    return [...new Set(allCategories)].sort();
+  }, [items]);
 
   const filteredItems = useMemo(() => {
     if (!searchTerm) return items;
@@ -107,6 +113,7 @@ export default function ItemsPage() {
           item={selectedItem}
           onClose={() => setIsFormOpen(false)}
           onSave={handleSave}
+          categories={categories}
         />
       )}
     </>

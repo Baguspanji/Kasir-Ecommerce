@@ -41,9 +41,10 @@ interface ItemFormDialogProps {
   item?: Product | null;
   onClose: () => void;
   onSave: (item: Product) => void;
+  categories: string[];
 }
 
-export function ItemFormDialog({ item, onClose, onSave }: ItemFormDialogProps) {
+export function ItemFormDialog({ item, onClose, onSave, categories }: ItemFormDialogProps) {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof itemSchema>>({
     resolver: zodResolver(itemSchema),
@@ -121,9 +122,16 @@ export function ItemFormDialog({ item, onClose, onSave }: ItemFormDialogProps) {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Kategori</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Kopi" {...field} />
-                        </FormControl>
+                          <FormControl>
+                            <>
+                              <Input placeholder="Pilih atau ketik kategori" {...field} list="category-list" />
+                              <datalist id="category-list">
+                                {categories.map((cat) => (
+                                  <option key={cat} value={cat} />
+                                ))}
+                              </datalist>
+                            </>
+                          </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
