@@ -5,7 +5,14 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import type { Transaction } from "@/types";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("id-ID", {
@@ -14,7 +21,11 @@ const formatCurrency = (value: number) =>
     minimumFractionDigits: 0,
   }).format(value);
 
-export const columns: ColumnDef<Transaction>[] = [
+interface GetColumnsProps {
+  onShowDetails: (transaction: Transaction) => void;
+}
+
+export const getColumns = ({ onShowDetails }: GetColumnsProps): ColumnDef<Transaction>[] => [
   {
     accessorKey: "id",
     header: "ID Transaksi",
@@ -33,6 +44,11 @@ export const columns: ColumnDef<Transaction>[] = [
         );
       },
     cell: ({ row }) => format(row.getValue("date"), "PPp", { locale: id }),
+  },
+  {
+    accessorKey: "customerName",
+    header: "Pelanggan",
+    cell: ({ row }) => row.getValue("customerName") || "-",
   },
   {
     accessorKey: "items",
@@ -67,5 +83,29 @@ export const columns: ColumnDef<Transaction>[] = [
     cell: ({ row }) => (
       <div className="text-right">{formatCurrency(row.getValue("profit"))}</div>
     ),
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const transaction = row.original;
+      return (
+        <div className="text-right">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Buka menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Aksi</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => onShowDetails(transaction)}>
+                Lihat Detail & Struk
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      );
+    },
   },
 ];

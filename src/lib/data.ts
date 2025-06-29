@@ -24,11 +24,16 @@ function generateRandomDate(from: Date, to: Date) {
   return new Date(from.getTime() + Math.random() * (to.getTime() - from.getTime()));
 }
 
+const customerNames = ["Andi", "Budi", "Citra", "Dewi", "Eko"];
+const customerPhones = ["081234567890", "082345678901", "083456789012", "085678901234", "087890123456"];
+
+
 export const MOCK_TRANSACTIONS: Transaction[] = Array.from({ length: 50 }, (_, i) => {
   const items = MOCK_PRODUCTS.slice(i % 5, (i % 5) + Math.floor(Math.random() * 3) + 1).map(p => ({ ...p, quantity: Math.floor(Math.random() * 2) + 1 }));
   const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const payment = Math.ceil(total / 10000) * 10000;
-  return {
+  
+  let transaction: Transaction = {
     id: `TRX-2024-${String(i + 1).padStart(4, '0')}`,
     items,
     total,
@@ -38,4 +43,13 @@ export const MOCK_TRANSACTIONS: Transaction[] = Array.from({ length: 50 }, (_, i
     cogs: total * 0.4,
     profit: total * 0.6,
   };
+  
+  // Add customer info to about 30% of transactions
+  if (Math.random() < 0.3) {
+    const customerIndex = i % customerNames.length;
+    transaction.customerName = customerNames[customerIndex];
+    transaction.customerPhone = customerPhones[customerIndex];
+  }
+
+  return transaction;
 });

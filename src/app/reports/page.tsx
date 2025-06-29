@@ -6,9 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "@/components/date-range-picker";
 import Header from "@/components/layout/header";
 import { DataTable } from "@/components/data-table";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 import type { Transaction } from "@/types";
 import { MOCK_TRANSACTIONS } from "@/lib/data";
+import { TransactionDetailDialog } from "@/components/transaction-detail-dialog";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(value);
@@ -16,6 +17,7 @@ const formatCurrency = (value: number) =>
 export default function ReportsPage() {
   const [transactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   const filteredTransactions = useMemo(() => {
     if (!dateRange?.from || !dateRange?.to) {
@@ -38,6 +40,16 @@ export default function ReportsPage() {
       { totalRevenue: 0, cogs: 0, grossProfit: 0 }
     );
   }, [filteredTransactions]);
+
+  const handleShowDetails = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+  };
+  
+  const handleCloseDetails = () => {
+    setSelectedTransaction(null);
+  };
+
+  const columns = getColumns({ onShowDetails: handleShowDetails });
 
   return (
     <>
@@ -77,6 +89,10 @@ export default function ReportsPage() {
           <DataTable columns={columns} data={filteredTransactions} />
         </div>
       </div>
+      <TransactionDetailDialog 
+        transaction={selectedTransaction}
+        onClose={handleCloseDetails}
+      />
     </>
   );
 }
