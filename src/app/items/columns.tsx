@@ -1,6 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
 import { MoreHorizontal, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +20,23 @@ interface GetColumnsProps {
 }
 
 export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Product>[] => [
+  {
+    accessorKey: "image",
+    header: "Gambar",
+    cell: ({ row }) => {
+      const imageUrl = row.original.image;
+      const imageName = row.original.name;
+      return (
+        <Image
+          src={imageUrl || "https://placehold.co/40x40.png"}
+          alt={imageName}
+          width={40}
+          height={40}
+          className="rounded-md object-cover"
+        />
+      );
+    },
+  },
   {
     accessorKey: "name",
     header: ({ column }) => {
