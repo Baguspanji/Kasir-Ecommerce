@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import type { StockItem } from "@/types";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 interface GetColumnsProps {
   onAdjust: (item: StockItem) => void;
@@ -19,8 +20,20 @@ export const getColumns = ({ onAdjust }: GetColumnsProps): ColumnDef<StockItem>[
     header: "Kategori",
   },
   {
-    accessorKey: "sku",
-    header: "SKU",
+    accessorKey: "barcodes",
+    header: "Barcode",
+    cell: ({ row }) => {
+      const barcodes = row.getValue("barcodes") as string[];
+      return (
+        <div className="flex flex-wrap gap-1">
+          {barcodes.map((barcode) => (
+            <Badge key={barcode} variant="secondary">
+              {barcode}
+            </Badge>
+          ))}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "stock",

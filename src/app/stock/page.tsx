@@ -18,10 +18,13 @@ export default function StockPage() {
 
   const filteredStockItems = useMemo(() => {
     if (!searchTerm) return stockItems;
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
     return stockItems.filter(
       (item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.sku.toLowerCase().includes(searchTerm.toLowerCase())
+        item.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+        item.barcodes.some((barcode) =>
+          barcode.toLowerCase().includes(lowerCaseSearchTerm)
+        )
     );
   }, [stockItems, searchTerm]);
 
@@ -47,7 +50,7 @@ export default function StockPage() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
-            placeholder="Cari barang berdasarkan nama atau SKU..."
+            placeholder="Cari barang berdasarkan nama atau barcode..."
             className="pl-10 text-base bg-card"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}

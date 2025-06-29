@@ -17,10 +17,13 @@ export default function CashierPage() {
 
   const filteredProducts = useMemo(() => {
     if (!searchTerm) return products;
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
     return products.filter(
       (p) =>
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.sku.toLowerCase().includes(searchTerm.toLowerCase())
+        p.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+        p.barcodes.some((barcode) =>
+          barcode.toLowerCase().includes(lowerCaseSearchTerm)
+        )
     );
   }, [products, searchTerm]);
 
@@ -95,7 +98,7 @@ export default function CashierPage() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Cari produk berdasarkan nama atau SKU..."
+              placeholder="Cari produk berdasarkan nama atau barcode..."
               className="pl-10 text-base bg-card"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

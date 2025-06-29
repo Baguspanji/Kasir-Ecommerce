@@ -3,7 +3,7 @@ export interface Product {
   name: string;
   price: number;
   category: string;
-  sku: string;
+  barcodes: string[];
   stock: number;
   image: string;
   'data-ai-hint'?: string;

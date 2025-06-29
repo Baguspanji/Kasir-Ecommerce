@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Product } from "@/types";
+import { Badge } from "@/components/ui/badge";
 
 interface GetColumnsProps {
   onEdit: (item: Product) => void;
@@ -50,8 +51,20 @@ export const getColumns = ({ onEdit, onDelete }: GetColumnsProps): ColumnDef<Pro
     },
   },
   {
-    accessorKey: "sku",
-    header: "SKU",
+    accessorKey: "barcodes",
+    header: "Barcode",
+    cell: ({ row }) => {
+      const barcodes = row.getValue("barcodes") as string[];
+      return (
+        <div className="flex flex-wrap gap-1">
+          {barcodes.map((barcode) => (
+            <Badge key={barcode} variant="secondary">
+              {barcode}
+            </Badge>
+          ))}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "stock",
