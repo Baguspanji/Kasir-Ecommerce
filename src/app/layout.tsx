@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import MainLayout from "@/components/layout/main-layout";
@@ -6,7 +6,21 @@ import MainLayout from "@/components/layout/main-layout";
 export const metadata: Metadata = {
   title: "Aplikasi Kasir",
   description: "Aplikasi Point of Sale",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Aplikasi Kasir",
+  },
+  icons: {
+    apple: "/icon-192x192.png",
+  }
 };
+
+export const viewport: Viewport = {
+  themeColor: "#f0f0f0",
+};
+
 
 export default function RootLayout({
   children,
