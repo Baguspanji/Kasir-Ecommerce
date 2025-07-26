@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import ProductCard from "@/components/product-card";
 import CartPanel from "@/components/cart-panel";
 import type { Product, CartItem, Transaction, DraftCart, NewTransaction } from "@/types";
-import { getAllProducts, addTransaction } from "@/lib/db";
+import { getAllProducts, addTransaction, getProduct, saveProduct } from "@/lib/db";
 import { useToast } from "@/hooks/use-toast";
 import { TransactionDetailDialog } from "@/components/transaction-detail-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -58,8 +58,8 @@ export default function CashierPage() {
   }, [drafts, activeDraftId]);
 
   const categories = useMemo(() => {
-    const allCategories = products.map((p) => p.category);
-    return ["Semua", ...[...new Set(allCategories)].sort()];
+    const allCategories = products.map((p) => p.category).sort();
+    return ["Semua", ...[...new Set(allCategories)]];
   }, [products]);
 
   const filteredProducts = useMemo(() => {
@@ -101,24 +101,49 @@ export default function CashierPage() {
     updateActiveDraft((draft) => {
       const existingItem = draft.items.find((item) => item.id === product.id);
       if (existingItem) {
+        if (existingItem.quantity < product.stock) {
+          return {
+            ...draft,
+            items: draft.items.map((item) =>
+              item.id === product.id
+                ? { ...item, quantity: item.quantity + 1 }
+                : item
+            ),
+          };
+        } else {
+          toast({ variant: "destructive", title: "Stok tidak mencukupi."});
+          return draft;
+        }
+      }
+      if (product.stock > 0) {
         return {
           ...draft,
-          items: draft.items.map((item) =>
-            item.id === product.id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          ),
+          items: [...draft.items, { ...product, quantity: 1 }],
         };
+      } else {
+        toast({ variant: "destructive", title: "Stok produk habis."});
+        return draft;
       }
-      return {
-        ...draft,
-        items: [...draft.items, { ...product, quantity: 1 }],
-      };
     });
   };
 
   const updateQuantity = (productId: number, quantity: number) => {
     updateActiveDraft((draft) => {
+      const itemToUpdate = draft.items.find((item) => item.id === productId);
+      const product = products.find((p) => p.id === productId);
+
+      if (!itemToUpdate || !product) return draft;
+
+      if (quantity > product.stock) {
+        toast({ variant: "destructive", title: "Stok tidak mencukupi.", description: `Stok tersisa: ${product.stock}` });
+        return {
+          ...draft,
+          items: draft.items.map((item) =>
+            item.id === productId ? { ...item, quantity: product.stock } : item
+          ),
+        };
+      }
+
       if (quantity <= 0) {
         return {
           ...draft,
@@ -182,6 +207,11 @@ export default function CashierPage() {
     customerName?: string,
     customerPhone?: string
   ) => {
+    if (activeCartItems.length === 0) {
+      toast({ variant: "destructive", title: "Keranjang kosong." });
+      return;
+    }
+    
     const newTransactionData: NewTransaction = {
       date: new Date(),
       items: activeCartItems,
@@ -195,8 +225,24 @@ export default function CashierPage() {
     };
     
     try {
+        // 1. Save transaction
         const savedTransaction = await addTransaction(newTransactionData);
+        
+        // 2. Update stock for each item
+        for (const item of activeCartItems) {
+            const product = await getProduct(item.id);
+            if (product) {
+                const newStock = product.stock - item.quantity;
+                await saveProduct({ ...product, stock: newStock });
+            }
+        }
+        
+        // 3. Show receipt dialog
         setCompletedTransaction(savedTransaction);
+        
+        // 4. Refetch products to get updated stock
+        await fetchProducts();
+
     } catch (error) {
         console.error("Failed to save transaction:", error);
         toast({ variant: "destructive", title: "Gagal menyimpan transaksi." });
