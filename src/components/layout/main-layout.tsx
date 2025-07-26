@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import {
   ShoppingCart,
@@ -10,10 +10,13 @@ import {
   BarChart3,
   Building,
   Settings,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SyncStatusIndicator from "@/components/sync-status-indicator";
 import { useSettings } from "@/hooks/use-settings";
+import { getAllProducts } from "@/lib/db";
+import type { Product } from "@/types";
 
 const navItems = [
   { href: "/", label: "Kasir", icon: ShoppingCart },
@@ -23,9 +26,32 @@ const navItems = [
   { href: "/settings", label: "Pengaturan", icon: Settings },
 ];
 
+const LOW_STOCK_THRESHOLD = 20;
+
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { settings, isLoading } = useSettings();
+  const [hasLowStock, setHasLowStock] = useState(false);
+
+  const checkLowStock = useCallback(async () => {
+    try {
+      const products: Product[] = await getAllProducts();
+      const lowStockItems = products.filter(
+        (p) => p.stock < LOW_STOCK_THRESHOLD
+      );
+      setHasLowStock(lowStockItems.length > 0);
+    } catch (error) {
+      console.error("Failed to check low stock:", error);
+      // Don't show notification if there's an error
+      setHasLowStock(false); 
+    }
+  }, []);
+
+  useEffect(() => {
+    // Check stock on initial load and whenever the path changes,
+    // as stock might have been updated.
+    checkLowStock();
+  }, [checkLowStock, pathname]);
 
   useEffect(() => {
     if (settings) {
@@ -56,7 +82,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
                 key={item.label}
                 href={item.href}
                 className={cn(
-                  "transition-colors hover:text-foreground/80 flex items-center gap-2",
+                  "transition-colors hover:text-foreground/80 flex items-center gap-2 relative",
                   pathname === item.href
                     ? "text-foreground font-semibold"
                     : "text-foreground/60"
@@ -64,6 +90,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
               >
                 <item.icon className="h-4 w-4" />
                 {item.label}
+                {item.href === "/stock" && hasLowStock && (
+                  <span className="absolute -top-1 -right-2 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
+                  </span>
+                )}
               </Link>
             ))}
           </nav>
