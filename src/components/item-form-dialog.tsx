@@ -123,14 +123,12 @@ export function ItemFormDialog({ item, onClose, onSave, categories }: ItemFormDi
                       <FormItem>
                         <FormLabel>Kategori</FormLabel>
                           <FormControl>
-                            <>
-                              <Input placeholder="Pilih atau ketik kategori" {...field} list="category-list" />
-                              <datalist id="category-list">
-                                {categories.map((cat) => (
-                                  <option key={cat} value={cat} />
-                                ))}
-                              </datalist>
-                            </>
+                            <Input placeholder="Pilih atau ketik kategori" {...field} list="category-list" />
+                            <datalist id="category-list">
+                              {categories.map((cat) => (
+                                <option key={cat} value={cat} />
+                              ))}
+                            </datalist>
                           </FormControl>
                         <FormMessage />
                       </FormItem>
